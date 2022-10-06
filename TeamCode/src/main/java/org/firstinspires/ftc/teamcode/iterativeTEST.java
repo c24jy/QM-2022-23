@@ -132,8 +132,8 @@ public class iterativeTEST extends OpMode
 //        rightBackPower   = Range.clip(drive - turn, -1.0, 1.0) ;
 
         double y = -gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x * 1.1;
-        double rx = gamepad1.right_stick_x;
+        double x = gamepad1.left_stick_x;
+        double rx = gamepad1.right_stick_y;
 
         leftBackPower    = Range.clip(y + x + rx, -1.0, 1.0) ;
         leftFrontPower    = Range.clip(y - x + rx, -1.0, 1.0) ;
