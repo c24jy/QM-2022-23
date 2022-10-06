@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -123,12 +123,22 @@ public class iterativeTEST extends OpMode
 
         // POV Mode uses left stick to go forward, and right stick to turn.
         // - This uses basic math to combine motions and is easier to drive straight.
-        double drive = -gamepad1.left_stick_y;
-        double turn  =  gamepad1.right_stick_x;
-        leftFrontPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-        leftBackPower    = Range.clip(drive + turn, -1.0, 1.0) ;
-        rightFrontPower   = Range.clip(drive - turn, -1.0, 1.0) ;
-        rightBackPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+//        double turn = -gamepad1.right_stick_y;
+//        double drive = gamepad1.right_stick_x;
+//
+//        leftFrontPower    = Range.clip(drive + turn, -1.0, 1.0) ;
+//        leftBackPower    = Range.clip(drive + turn, -1.0, 1.0) ;
+//        rightFrontPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+//        rightBackPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+
+        double y = -gamepad1.left_stick_y;
+        double x = gamepad1.left_stick_x * 1.1;
+        double rx = gamepad1.right_stick_x;
+
+        leftBackPower    = Range.clip(y + x + rx, -1.0, 1.0) ;
+        leftFrontPower    = Range.clip(y - x + rx, -1.0, 1.0) ;
+        rightFrontPower   = Range.clip(y - x - rx, -1.0, 1.0) ;
+        rightBackPower   = Range.clip(y + x - rx, -1.0, 1.0) ;
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
