@@ -88,6 +88,11 @@ public class iterativeTEST extends OpMode
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+        leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -130,15 +135,21 @@ public class iterativeTEST extends OpMode
 //        leftBackPower    = Range.clip(drive + turn, -1.0, 1.0) ;
 //        rightFrontPower   = Range.clip(drive - turn, -1.0, 1.0) ;
 //        rightBackPower   = Range.clip(drive - turn, -1.0, 1.0) ;
+        final double JOYSTICK_SEN = .2;
+        // if mathabs < joystick -> (?) 0 else (:) set to leftstick
 
-        double y = -gamepad1.left_stick_y;
-        double x = gamepad1.left_stick_x;
-        double rx = gamepad1.right_stick_y;
 
-        leftBackPower    = Range.clip(y + x + rx, -1.0, 1.0) ;
-        leftFrontPower    = Range.clip(y - x + rx, -1.0, 1.0) ;
-        rightFrontPower   = Range.clip(y - x - rx, -1.0, 1.0) ;
-        rightBackPower   = Range.clip(y + x - rx, -1.0, 1.0) ;
+
+        double lx = Math.abs(gamepad1.left_stick_x)< JOYSTICK_SEN ? 0 : gamepad1.left_stick_x;
+        //lx is turning
+        double rx = Math.abs(gamepad1.right_stick_x)< JOYSTICK_SEN ? 0 : gamepad1.right_stick_x;
+        //rx is strafing
+        double ry = Math.abs(gamepad1.right_stick_y)< JOYSTICK_SEN ? 0 : gamepad1.right_stick_y;
+        //front and back
+        leftBackPower    = Range.clip(-lx + rx + ry, -1.0, 1.0) ;
+        leftFrontPower    = Range.clip(-lx - rx + ry, -1.0, 1.0) ;
+        rightFrontPower   = Range.clip(-lx - rx - ry, -1.0, 1.0) ;
+        rightBackPower   = Range.clip(-lx + rx - ry, -1.0, 1.0) ;
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -146,10 +157,11 @@ public class iterativeTEST extends OpMode
         // rightPower = -gamepad1.right_stick_y ;
 
         // Send calculated power to wheels
-        leftFront.setPower(leftFrontPower);
-        leftBack.setPower(leftBackPower);
-        rightFront.setPower(rightFrontPower);
-        rightBack.setPower(rightBackPower);
+        double maxSpeed =0.85;
+        leftFront.setPower(leftFrontPower*maxSpeed);
+        leftBack.setPower(leftBackPower*maxSpeed);
+        rightFront.setPower(rightFrontPower*maxSpeed);
+        rightBack.setPower(rightBackPower*maxSpeed);
 
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
