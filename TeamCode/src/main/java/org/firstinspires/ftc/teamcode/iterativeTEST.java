@@ -146,6 +146,7 @@ public class iterativeTEST extends OpMode
         //rx is strafing
         double ry = Math.abs(gamepad1.right_stick_y)< JOYSTICK_SEN ? 0 : gamepad1.right_stick_y;
         //front and back
+
         leftBackPower    = Range.clip(-lx + rx + ry, -1.0, 1.0) ;
         leftFrontPower    = Range.clip(-lx - rx + ry, -1.0, 1.0) ;
         rightFrontPower   = Range.clip(-lx - rx - ry, -1.0, 1.0) ;
