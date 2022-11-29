@@ -29,3 +29,8 @@ apply from: '../build.dependencies.gradle'
 dependencies {
     implementation 'org.openftc:easyopencv:1.5.2'
 }
+
+
+dependencies {
+    implementation 'org.openftc:easyopencv:1.5.2'
+}

@@ -28,12 +28,12 @@ public class camera extends OpenCvPipeline {
 //        converts rgb to hsv
 
 
-        Scalar orangeLower = new Scalar(8, 170, 140);
+        Scalar orangeLower = new Scalar(8, 114.5, 102);
         Scalar orangeUpper = new Scalar(15, 229.5, 256);
         Scalar purpleLower = new Scalar(125, 60, 76.5);
         Scalar purpleUpper = new Scalar(170, 204, 160);
         Scalar greenLower = new Scalar(23, 51, 76.5);
-        Scalar greenUpper = new Scalar(47, 155, 200);
+        Scalar greenUpper = new Scalar(47, 122, 200);
 
         double orangeArea = colorArea(input,orangeUpper,orangeLower,input);
         double purpleArea = colorArea(input,purpleUpper,purpleLower,input);
