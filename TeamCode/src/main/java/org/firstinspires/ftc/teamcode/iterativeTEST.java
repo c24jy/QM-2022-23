@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
@@ -65,6 +66,16 @@ public class iterativeTEST extends OpMode
     //    port 2
     private DcMotor rightBack = null;
 
+    private DcMotor liftMotor = null;
+
+    Servo servo_claw;
+    double servo_claw_pos;
+    //in
+    static final double SERVO_CLAW_INIT = .6;
+    //out
+    static final double SERVO_CLAW_GRAB = .15;
+
+
     /*
      * Code to run ONCE when the driver hits INIT
      */
@@ -79,6 +90,11 @@ public class iterativeTEST extends OpMode
         leftBack = hardwareMap.get(DcMotor.class, "left_back");
         rightFront  = hardwareMap.get(DcMotor.class, "right_front");
         rightBack = hardwareMap.get(DcMotor.class, "right_back");
+        liftMotor = hardwareMap.get(DcMotor.class, "lift_motor");
+
+
+        servo_claw = hardwareMap.servo.get("servo_claw");
+        servo_claw_pos = SERVO_CLAW_INIT;
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -87,11 +103,19 @@ public class iterativeTEST extends OpMode
         leftBack.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
+        liftMotor.setDirection(DcMotor.Direction.REVERSE);
+
+        servo_claw.setPosition(servo_claw_pos);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
 
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
@@ -122,6 +146,8 @@ public class iterativeTEST extends OpMode
         double leftBackPower;
         double rightFrontPower;
         double rightBackPower;
+        double liftPower;
+//        double
 
         // Choose to drive using either Tank Mode, or POV Mode
         // Comment out the method that's not used.  The default below is POV.
@@ -138,18 +164,37 @@ public class iterativeTEST extends OpMode
         final double JOYSTICK_SEN = .2;
         // if mathabs < joystick -> (?) 0 else (:) set to leftstick
 
-
-
         double lx = Math.abs(gamepad1.left_stick_x)< JOYSTICK_SEN ? 0 : gamepad1.left_stick_x;
         //lx is turning
         double rx = Math.abs(gamepad1.right_stick_x)< JOYSTICK_SEN ? 0 : gamepad1.right_stick_x;
         //rx is strafing
         double ry = Math.abs(gamepad1.right_stick_y)< JOYSTICK_SEN ? 0 : gamepad1.right_stick_y;
         //front and back
-        leftBackPower    = Range.clip(-lx + rx + ry, -1.0, 1.0) ;
-        leftFrontPower    = Range.clip(-lx - rx + ry, -1.0, 1.0) ;
-        rightFrontPower   = Range.clip(-lx - rx - ry, -1.0, 1.0) ;
-        rightBackPower   = Range.clip(-lx + rx - ry, -1.0, 1.0) ;
+
+        if (gamepad2.x) {
+            servo_claw_pos = SERVO_CLAW_INIT;
+        }
+        if (gamepad2.b) {
+            servo_claw_pos = SERVO_CLAW_GRAB;
+        }
+
+        servo_claw.setPosition(servo_claw_pos);
+
+        if (gamepad2.y) {
+            liftMotor.setDirection(DcMotor.Direction.REVERSE);
+            liftMotor.setPower(1);
+        } else if (gamepad2.a) {
+            liftMotor.setDirection(DcMotor.Direction.FORWARD);
+            liftMotor.setPower(.15);
+        } else {
+            liftMotor.setPower(0);
+        }
+
+
+        leftBackPower    = Range.clip(-lx - rx - ry, -1.0, 1.0) ;
+        leftFrontPower    = Range.clip(-lx + rx - ry, -1.0, 1.0) ;
+        rightFrontPower   = Range.clip(-lx + rx + ry, -1.0, 1.0) ;
+        rightBackPower   = Range.clip(-lx - rx + ry, -1.0, 1.0) ;
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -157,7 +202,7 @@ public class iterativeTEST extends OpMode
         // rightPower = -gamepad1.right_stick_y ;
 
         // Send calculated power to wheels
-        double maxSpeed =0.85;
+        double maxSpeed =0.75;
         leftFront.setPower(leftFrontPower*maxSpeed);
         leftBack.setPower(leftBackPower*maxSpeed);
         rightFront.setPower(rightFrontPower*maxSpeed);
@@ -166,6 +211,11 @@ public class iterativeTEST extends OpMode
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", leftFrontPower, rightFrontPower);
+        telemetry.addData("lf", leftFront.getCurrentPosition());
+        telemetry.addData("rf", rightFront.getCurrentPosition());
+        telemetry.addData("lb", leftBack.getCurrentPosition());
+        telemetry.addData("rb", rightBack.getCurrentPosition());
+
     }
 
     /*
