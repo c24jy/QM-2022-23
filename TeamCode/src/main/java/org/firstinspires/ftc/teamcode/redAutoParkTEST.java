@@ -44,6 +44,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.lang.Math;
+import java.sql.SQLOutput;
 
 /**
  * This file illustrates the concept of driving a path based on encoder counts.
@@ -139,10 +140,10 @@ public class redAutoParkTEST extends LinearOpMode {
         }
 
         // Initialize the drive system variables.
-        leftFront  = hardwareMap.get(DcMotor.class, "left_front");
-        leftBack = hardwareMap.get(DcMotor.class, "left_back");
-        rightFront  = hardwareMap.get(DcMotor.class, "right_front");
-        rightBack = hardwareMap.get(DcMotor.class, "right_back");
+        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightFront  = hardwareMap.get(DcMotor.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -156,10 +157,10 @@ public class redAutoParkTEST extends LinearOpMode {
 //        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -208,8 +209,8 @@ public class redAutoParkTEST extends LinearOpMode {
         // Step through each leg of the path,
         // Note: Reverse movement is obtained by setting a negative distance (not speed)
        // encoderDrive(DRIVE_SPEED,  0,  0, 20, -24, 5);  // S1: Forward 47 Inches with 5 Sec timeout
-        encoderDrive(TURN_SPEED, 0, 0, 20, 0, 4.0);
-        encoderDrive(DRIVE_SPEED, 20, 0, 20, 0, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
+//        encoderDrive(TURN_SPEED, 0, 0, 20, 0, 4.0);
+//        encoderDrive(DRIVE_SPEED, 20, 0, 20, 0, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
         telemetry.addData("Path", "Complete");
         telemetry.update();
@@ -291,7 +292,7 @@ public class redAutoParkTEST extends LinearOpMode {
             rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-            sleep(250);   // optional pause after each move.
+           // sleep(250);   // optional pause after each move.
         }
     }
 
@@ -301,6 +302,8 @@ public class redAutoParkTEST extends LinearOpMode {
 
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        System.out.println("in forward drive");
+
         leftFront.setPower(power);
         leftBack.setPower(power);
         rightBack.setPower(-power);
@@ -308,9 +311,10 @@ public class redAutoParkTEST extends LinearOpMode {
 
 
         //wait until reaches position
-        while (rightFront.getCurrentPosition() < position){
+        while (Math.abs(rightFront.getCurrentPosition()) < position && opModeIsActive()){
             telemetry.addData("position: ", rightFront.getCurrentPosition());
             telemetry.update();
+
         }
 
         leftFront.setPower(0);
@@ -325,13 +329,15 @@ public class redAutoParkTEST extends LinearOpMode {
 
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        System.out.println("in strafe l");
+
         leftFront.setPower(-power);
         leftBack.setPower(power);
         rightBack.setPower(power);
         rightFront.setPower(-power);
 
         //wait until finishes turning
-        while (Math.abs(rightFront.getCurrentPosition()) < position){}
+        while (Math.abs(rightFront.getCurrentPosition()) < position && opModeIsActive()){}
 
         leftFront.setPower(0);
         leftBack.setPower(0);
@@ -351,7 +357,7 @@ public class redAutoParkTEST extends LinearOpMode {
         rightFront.setPower(power);
 
         //wait until finishes turning
-        while (Math.abs(rightFront.getCurrentPosition()) < position){}
+        while (Math.abs(rightFront.getCurrentPosition() ) < position && opModeIsActive()){}
 
         leftFront.setPower(0);
         leftBack.setPower(0);
