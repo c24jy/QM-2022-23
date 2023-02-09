@@ -69,11 +69,26 @@ public class iterativeTEST extends OpMode
     private DcMotor liftMotor = null;
 
     Servo servo_claw;
+    Servo servo_lift_r;
+    Servo servo_lift_l;
     double servo_claw_pos;
+    double servo_lift_l_pos;
+    double servo_lift_r_pos;
     //in
     static final double SERVO_CLAW_INIT = .6;
     //out
-    static final double SERVO_CLAW_GRAB = .15;
+    static final double SERVO_CLAW_GRAB = .32;
+
+
+    static final double SERVO_LIFT_R_FRONT = .15;
+    static final double SERVO_LIFT_R_FMID = .25;
+    static final double SERVO_LIFT_R_BACK = .95;
+    static final double SERVO_LIFT_R_BMID = .85;
+
+    static final double SERVO_LIFT_L_FRONT = .93;
+    static final double SERVO_LIFT_L_FMID = .83;
+    static final double SERVO_LIFT_L_BACK = .2;
+    static final double SERVO_LIFT_L_BMID = .3;
 
 
     /*
@@ -86,15 +101,20 @@ public class iterativeTEST extends OpMode
         // Initialize the hardware variables. Note that the strings used here as parameters
         // to 'get' must correspond to the names assigned during the robot configuration
         // step (using the FTC Robot Controller app on the phone).
-        leftFront  = hardwareMap.get(DcMotor.class, "left_front");
-        leftBack = hardwareMap.get(DcMotor.class, "left_back");
-        rightFront  = hardwareMap.get(DcMotor.class, "right_front");
-        rightBack = hardwareMap.get(DcMotor.class, "right_back");
+        leftFront  = hardwareMap.get(DcMotor.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotor.class, "leftBack");
+        rightFront  = hardwareMap.get(DcMotor.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         liftMotor = hardwareMap.get(DcMotor.class, "lift_motor");
 
 
         servo_claw = hardwareMap.servo.get("servo_claw");
         servo_claw_pos = SERVO_CLAW_INIT;
+        servo_lift_r = hardwareMap.servo.get("servo_lift_r");
+        servo_lift_r_pos = SERVO_LIFT_R_FRONT;
+        servo_lift_l = hardwareMap.servo.get("servo_lift_l");
+        servo_lift_l_pos = SERVO_LIFT_L_FRONT;
+
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // Pushing the left stick forward MUST make robot go forward. So adjust these two lines based on your first test drive.
@@ -106,6 +126,8 @@ public class iterativeTEST extends OpMode
         liftMotor.setDirection(DcMotor.Direction.REVERSE);
 
         servo_claw.setPosition(servo_claw_pos);
+        servo_lift_r.setPosition(servo_lift_r_pos);
+        servo_lift_l.setPosition(servo_lift_l_pos);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -115,6 +137,10 @@ public class iterativeTEST extends OpMode
 
         liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         // Tell the driver that initialization is complete.
@@ -171,12 +197,44 @@ public class iterativeTEST extends OpMode
         double ry = Math.abs(gamepad1.right_stick_y)< JOYSTICK_SEN ? 0 : gamepad1.right_stick_y;
         //front and back
 
+        double rt = Math.abs(gamepad2.right_trigger)< JOYSTICK_SEN ? 0 : gamepad2.right_trigger;
+        double lt = Math.abs(gamepad2.left_trigger)< JOYSTICK_SEN ? 0 : gamepad2.left_trigger;
+
         if (gamepad2.x) {
             servo_claw_pos = SERVO_CLAW_INIT;
         }
         if (gamepad2.b) {
             servo_claw_pos = SERVO_CLAW_GRAB;
         }
+
+        double rScaled = Range.clip(rt, 0, 1.0);
+        double lScaled = Range.clip(lt, 0, 1.0);
+        //lift up
+        if (gamepad2.right_bumper) {
+            servo_lift_l_pos = SERVO_LIFT_L_FRONT;
+            servo_lift_r_pos = SERVO_LIFT_R_FRONT;
+            servo_lift_r.setPosition(servo_lift_r_pos);
+            servo_lift_l.setPosition(servo_lift_l_pos);
+        } else if (gamepad2.left_bumper) {
+            servo_lift_l_pos = SERVO_LIFT_L_BACK;
+            servo_lift_r_pos = SERVO_LIFT_R_BACK;
+            servo_lift_r.setPosition(servo_lift_r_pos);
+            servo_lift_l.setPosition(servo_lift_l_pos);
+        }
+        if (rScaled > 0) {
+            servo_lift_l_pos = SERVO_LIFT_L_FMID;
+            servo_lift_r_pos = SERVO_LIFT_R_FMID;
+            servo_lift_l.setPosition(servo_lift_l_pos);
+            servo_lift_r.setPosition(servo_lift_r_pos);
+        }
+        if (lScaled > 0) {
+            servo_lift_l_pos = SERVO_LIFT_L_BMID;
+            servo_lift_r_pos = SERVO_LIFT_R_BMID;
+            servo_lift_l.setPosition(servo_lift_l_pos);
+            servo_lift_r.setPosition(servo_lift_r_pos);
+        }
+
+
 
         servo_claw.setPosition(servo_claw_pos);
 
@@ -195,6 +253,7 @@ public class iterativeTEST extends OpMode
         leftFrontPower    = Range.clip(-lx + rx - ry, -1.0, 1.0) ;
         rightFrontPower   = Range.clip(-lx + rx + ry, -1.0, 1.0) ;
         rightBackPower   = Range.clip(-lx - rx + ry, -1.0, 1.0) ;
+
 
         // Tank Mode uses one stick to control each wheel.
         // - This requires no math, but it is hard to drive forward slowly and keep straight.
@@ -215,6 +274,9 @@ public class iterativeTEST extends OpMode
         telemetry.addData("rf", rightFront.getCurrentPosition());
         telemetry.addData("lb", leftBack.getCurrentPosition());
         telemetry.addData("rb", rightBack.getCurrentPosition());
+
+
+        telemetry.update();
 
     }
 
