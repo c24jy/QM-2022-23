@@ -16,6 +16,7 @@ import java.util.ArrayList;
 public class camera extends OpenCvPipeline {
     Telemetry telemetry;
     SignalColor biggestArea = SignalColor.IDK;
+    SignalColor ifYellow = SignalColor.IDK;
 
     public camera(Telemetry telemetry) {
         this.telemetry = telemetry;
@@ -34,10 +35,13 @@ public class camera extends OpenCvPipeline {
         Scalar purpleUpper = new Scalar(170, 204, 160);
         Scalar greenLower = new Scalar(23, 51, 76.5);
         Scalar greenUpper = new Scalar(47, 122, 200);
+        Scalar yellowLower = new Scalar(20, 227, 191);
+        Scalar yellowUpper = new Scalar(50, 229.5, 220);
 
         double orangeArea = colorArea(input,orangeUpper,orangeLower,input);
         double purpleArea = colorArea(input,purpleUpper,purpleLower,input);
         double greenArea = colorArea(input,greenUpper,greenLower,input);
+        double yellowArea = colorArea(input, yellowUpper, yellowLower, input);
 
 
         if (orangeArea > purpleArea && orangeArea > greenArea){
@@ -49,6 +53,10 @@ public class camera extends OpenCvPipeline {
         } else {
             biggestArea = SignalColor.IDK;
         }
+        if (yellowArea >0){
+            ifYellow = SignalColor.YELLOW;
+        }
+
                 //
         // orange (h)8-13,   (s)45-90, (v) 40-90  - only for v need to check for larger range
         //purple (h)125-160  (s)30-80  (v) 30-60
@@ -112,5 +120,9 @@ public class camera extends OpenCvPipeline {
 
     public SignalColor getBiggestArea() {
         return biggestArea;
+    }
+
+    public SignalColor getIfYellow() {
+        return ifYellow;
     }
 }

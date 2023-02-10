@@ -75,20 +75,20 @@ public class iterativeTEST extends OpMode
     double servo_lift_l_pos;
     double servo_lift_r_pos;
     //in
-    static final double SERVO_CLAW_INIT = .6;
+    static final double SERVO_CLAW_INIT = .2;
     //out
-    static final double SERVO_CLAW_GRAB = .32;
+    static final double SERVO_CLAW_GRAB = .47;
 
 
     static final double SERVO_LIFT_R_FRONT = .15;
     static final double SERVO_LIFT_R_FMID = .25;
     static final double SERVO_LIFT_R_BACK = .95;
-    static final double SERVO_LIFT_R_BMID = .85;
+    static final double SERVO_LIFT_R_BMID = .55;
 
     static final double SERVO_LIFT_L_FRONT = .93;
     static final double SERVO_LIFT_L_FMID = .83;
     static final double SERVO_LIFT_L_BACK = .2;
-    static final double SERVO_LIFT_L_BMID = .3;
+    static final double SERVO_LIFT_L_BMID = .6;
 
 
     /*
@@ -135,7 +135,8 @@ public class iterativeTEST extends OpMode
         rightBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setTargetPosition(0);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -239,6 +240,7 @@ public class iterativeTEST extends OpMode
         servo_claw.setPosition(servo_claw_pos);
 
         if (gamepad2.y) {
+            liftMotor.setTargetPosition(691);
             liftMotor.setDirection(DcMotor.Direction.REVERSE);
             liftMotor.setPower(1);
         } else if (gamepad2.a) {
@@ -274,6 +276,7 @@ public class iterativeTEST extends OpMode
         telemetry.addData("rf", rightFront.getCurrentPosition());
         telemetry.addData("lb", leftBack.getCurrentPosition());
         telemetry.addData("rb", rightBack.getCurrentPosition());
+        telemetry.addData("LIFT", liftMotor.getCurrentPosition());
 
 
         telemetry.update();

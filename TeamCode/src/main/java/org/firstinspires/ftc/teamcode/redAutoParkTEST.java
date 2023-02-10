@@ -87,6 +87,7 @@ public class redAutoParkTEST extends LinearOpMode {
     private OpenCvWebcam webcam;
     private camera pipeline;
     private SignalColor color;
+    private SignalColor ifYellow;
 
     Servo servo_claw;
     Servo servo_lift_r;
@@ -102,12 +103,12 @@ public class redAutoParkTEST extends LinearOpMode {
     static final double SERVO_LIFT_R_FRONT = .15;
     static final double SERVO_LIFT_R_FMID = .25;
     static final double SERVO_LIFT_R_BACK = .95;
-    static final double SERVO_LIFT_R_BMID = .85;
+    static final double SERVO_LIFT_R_BMID = .55;
 
     static final double SERVO_LIFT_L_FRONT = .93;
     static final double SERVO_LIFT_L_FMID = .83;
     static final double SERVO_LIFT_L_BACK = .2;
-    static final double SERVO_LIFT_L_BMID = .3;
+    static final double SERVO_LIFT_L_BMID = .6;
 
     private Thread telemetryH = new Thread() {
         @Override
@@ -169,6 +170,8 @@ public class redAutoParkTEST extends LinearOpMode {
         rightBack = hardwareMap.get(DcMotor.class, "rightBack");
         liftMotor = hardwareMap.get(DcMotor.class, "lift_motor");
         servo_claw = hardwareMap.servo.get("servo_claw");
+        servo_lift_l = hardwareMap.servo.get("servo_lift_l");
+        servo_lift_r = hardwareMap.servo.get("servo_lift_r");
 
         // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
         // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
@@ -205,67 +208,87 @@ public class redAutoParkTEST extends LinearOpMode {
         waitForStart();
         servo_claw_pos = SERVO_CLAW_GRAB;
         servo_claw.setPosition(servo_claw_pos);
-        color = pipeline.getBiggestArea();
-
-        servo_lift_l_pos = SERVO_LIFT_L_FMID;
-        servo_lift_r_pos = SERVO_LIFT_R_FMID;
+        servo_lift_l_pos = SERVO_LIFT_L_FRONT;
+        servo_lift_r_pos = SERVO_LIFT_R_FRONT;
         servo_lift_l.setPosition(servo_lift_l_pos);
         servo_lift_r.setPosition(servo_lift_r_pos);
-        forwardDrive(.2, 1150);
-        strafeRight(.4, 1725);
-
-        liftMotor.setDirection(DcMotor.Direction.REVERSE);
-        liftMotor.setPower(1);
-        servo_claw_pos = SERVO_CLAW_INIT;
-        servo_claw.setPosition(servo_claw_pos);
-        liftMotor.setDirection(DcMotor.Direction.FORWARD);
-        liftMotor.setPower(.15);
-        liftMotor.setPower(0);
-
+        color = pipeline.getBiggestArea();
 
 
 
 
         //add in camera code
 
+        forwardDrive(.2, 1150);
+        strafeRight(.4, 1725);
+
+        ifYellow = pipeline.getIfYellow();
+
+        if (ifYellow == SignalColor.YELLOW){
+            strafeLeft(.2, 500);
+            sleep(1000);
+            servo_lift_l_pos = SERVO_LIFT_L_BMID;
+            servo_lift_r_pos = SERVO_LIFT_R_BMID;
+            servo_lift_l.setPosition(servo_lift_l_pos);
+            servo_lift_r.setPosition(servo_lift_r_pos);
+
+            liftMotor.setDirection(DcMotor.Direction.REVERSE);
+            liftMotor.setPower(1);
+            sleep(300);
+            servo_claw_pos = SERVO_CLAW_INIT;
+            servo_claw.setPosition(servo_claw_pos);
+
+            //reset
+            liftMotor.setDirection(DcMotor.Direction.FORWARD);
+            liftMotor.setPower(.15);
+            liftMotor.setPower(0);
+            sleep(300);
+            servo_lift_l_pos = SERVO_LIFT_L_FRONT;
+            servo_lift_r_pos = SERVO_LIFT_R_FRONT;
+            servo_lift_l.setPosition(servo_lift_l_pos);
+            servo_lift_r.setPosition(servo_lift_r_pos);
 
 
+        }
 
-//
-//        if (color == SignalColor.ORANGE) {
-//            //parking location one -- straight left
-//            forwardDrive(.2, 1150);
-//            strafeLeft(.4, 1150);
-////            color = SignalColor.IDK;
-//            leftFront.setPower(0);
-//            leftBack.setPower(0);
-//            rightBack.setPower(0);
-//            rightFront.setPower(0);
-//
-//        } else if (color == SignalColor.GREEN) {
-//            //parking location two -- straight
-//            forwardDrive(.2, 1150);
-////            color = SignalColor.IDK;
-//            leftFront.setPower(0);
-//            leftBack.setPower(0);
-//            rightBack.setPower(0);
-//            rightFront.setPower(0);
-//        } else if (color == SignalColor.PURPLE) {
-//            //three straight right
+        if (color == SignalColor.ORANGE) {
+            //parking location one -- straight left
+          //  forwardDrive(.2, 1150);
+            strafeLeft(.4, 2875); //go all the way left
+//            color = SignalColor.IDK;
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightBack.setPower(0);
+            rightFront.setPower(0);
+
+        } else if (color == SignalColor.GREEN) {
+            //parking location two -- straight
+          //  forwardDrive(.2, 1150);
+            strafeLeft(.4, 1725); //go back to beginning
+//            color = SignalColor.IDK;
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightBack.setPower(0);
+            rightFront.setPower(0);
+        } else if (color == SignalColor.PURPLE) {
+            //three straight right
 //            forwardDrive(.2, 1150);
 //            strafeRight(.4, 1150);
-////            color = SignalColor.IDK;
-//            leftFront.setPower(0);
-//            leftBack.setPower(0);
-//            rightBack.setPower(0);
-//            rightFront.setPower(0);
-//        } else if (color == SignalColor.IDK) {
-//            color = SignalColor.GREEN;
-//        }
+            strafeLeft(.4, 575);
+//            color = SignalColor.IDK;
+            leftFront.setPower(0);
+            leftBack.setPower(0);
+            rightBack.setPower(0);
+            rightFront.setPower(0);
+        } else if (color == SignalColor.IDK) {
+            color = SignalColor.GREEN;
+        }
 
-        // Step through each leg of the path,
-        // Note: Reverse movement is obtained by setting a negative distance (not speed)
-        // encoderDrive(DRIVE_SPEED,  0,  0, 20, -24, 5);  // S1: Forward 47 Inches with 5 Sec timeout
+
+
+//         Step through each leg of the path,
+//         Note: Reverse movement is obtained by setting a negative distance (not speed)
+//         encoderDrive(DRIVE_SPEED,  0,  0, 20, -24, 5);  // S1: Forward 47 Inches with 5 Sec timeout
 //        encoderDrive(TURN_SPEED, 0, 0, 20, 0, 4.0);
 //        encoderDrive(DRIVE_SPEED, 20, 0, 20, 0, 4.0);  // S3: Reverse 24 Inches with 4 Sec timeout
 
