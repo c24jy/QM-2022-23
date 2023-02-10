@@ -96,9 +96,9 @@ public class redAutoParkTEST extends LinearOpMode {
     double servo_lift_l_pos;
     double servo_lift_r_pos;
     //in
-    static final double SERVO_CLAW_INIT = .6;
+    static final double SERVO_CLAW_INIT = .2;
     //out
-    static final double SERVO_CLAW_GRAB = .32;
+    static final double SERVO_CLAW_GRAB = .47;
 
     static final double SERVO_LIFT_R_FRONT = .15;
     static final double SERVO_LIFT_R_FMID = .25;
@@ -109,6 +109,7 @@ public class redAutoParkTEST extends LinearOpMode {
     static final double SERVO_LIFT_L_FMID = .83;
     static final double SERVO_LIFT_L_BACK = .2;
     static final double SERVO_LIFT_L_BMID = .6;
+
 
     private Thread telemetryH = new Thread() {
         @Override
@@ -180,6 +181,9 @@ public class redAutoParkTEST extends LinearOpMode {
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.FORWARD);
 
+        liftMotor.setTargetPosition(0);
+        liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -190,9 +194,6 @@ public class redAutoParkTEST extends LinearOpMode {
         rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         liftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -206,6 +207,7 @@ public class redAutoParkTEST extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         waitForStart();
+
         servo_claw_pos = SERVO_CLAW_GRAB;
         servo_claw.setPosition(servo_claw_pos);
         servo_lift_l_pos = SERVO_LIFT_L_FRONT;
@@ -219,25 +221,31 @@ public class redAutoParkTEST extends LinearOpMode {
 
         //add in camera code
 
-        forwardDrive(.2, 1150);
+        forwardDrive(.2, 1200);
         strafeRight(.4, 1725);
+        sleep(1000);
 
         ifYellow = pipeline.getIfYellow();
 
-        if (ifYellow == SignalColor.YELLOW){
-            strafeLeft(.2, 500);
-            sleep(1000);
+        //if (ifYellow == SignalColor.YELLOW){
+            strafeLeft(.2, 200);
+            forwardDrive(-.2, 250);
             servo_lift_l_pos = SERVO_LIFT_L_BMID;
             servo_lift_r_pos = SERVO_LIFT_R_BMID;
             servo_lift_l.setPosition(servo_lift_l_pos);
             servo_lift_r.setPosition(servo_lift_r_pos);
 
+            liftMotor.setTargetPosition(691);
             liftMotor.setDirection(DcMotor.Direction.REVERSE);
-            liftMotor.setPower(1);
-            sleep(300);
+            liftMotor.setPower(.8);
+
+            sleep(2000);
+            forwardDrive(.2, 200);
+
             servo_claw_pos = SERVO_CLAW_INIT;
             servo_claw.setPosition(servo_claw_pos);
-
+            sleep(1000);
+            forwardDrive(-.2, 200);
             //reset
             liftMotor.setDirection(DcMotor.Direction.FORWARD);
             liftMotor.setPower(.15);
@@ -247,9 +255,10 @@ public class redAutoParkTEST extends LinearOpMode {
             servo_lift_r_pos = SERVO_LIFT_R_FRONT;
             servo_lift_l.setPosition(servo_lift_l_pos);
             servo_lift_r.setPosition(servo_lift_r_pos);
+            forwardDrive(.2, 200);
 
 
-        }
+       // }
 
         if (color == SignalColor.ORANGE) {
             //parking location one -- straight left
@@ -274,7 +283,7 @@ public class redAutoParkTEST extends LinearOpMode {
             //three straight right
 //            forwardDrive(.2, 1150);
 //            strafeRight(.4, 1150);
-            strafeLeft(.4, 575);
+            strafeLeft(.4, 375); //random value
 //            color = SignalColor.IDK;
             leftFront.setPower(0);
             leftBack.setPower(0);
@@ -357,6 +366,9 @@ public class redAutoParkTEST extends LinearOpMode {
                 telemetry.addData("Currently at", " at %7d :%7d",
                         leftBack.getCurrentPosition(),
                         rightFront.getCurrentPosition());
+                if(ifYellow == SignalColor.YELLOW ){
+                    telemetry.addData("see yellow", "\" at %7d :%7d\",", ifYellow);
+                }
                 telemetry.update();
             }
 
