@@ -80,14 +80,14 @@ public class iterativeTEST extends OpMode
     static final double SERVO_CLAW_GRAB = .47;
 
 
-    static final double SERVO_LIFT_R_FRONT = .15;
-    static final double SERVO_LIFT_R_FMID = .25;
-    static final double SERVO_LIFT_R_BACK = .95;
-    static final double SERVO_LIFT_R_BMID = .55;
+    static final double SERVO_LIFT_R_FRONT = .025;
+    static final double SERVO_LIFT_R_FMID = .2;
+    static final double SERVO_LIFT_R_BACK = .875;
+    static final double SERVO_LIFT_R_BMID = .5;
 
-    static final double SERVO_LIFT_L_FRONT = .93;
+    static final double SERVO_LIFT_L_FRONT = .975;
     static final double SERVO_LIFT_L_FMID = .83;
-    static final double SERVO_LIFT_L_BACK = .2;
+    static final double SERVO_LIFT_L_BACK = .325;
     static final double SERVO_LIFT_L_BMID = .6;
 
 
